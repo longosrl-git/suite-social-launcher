@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Longo Social Suite</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="font-family:sans-serif; background:#F7F4EC; color:#1E2A38; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
+<p id="msg">Connessione alla dashboard...</p>
+<script>
+  // Non contiene alcun dato riservato: solo l'URL pubblico (temporaneo,
+  // cambia ad ogni riavvio del PC) del tunnel Cloudflare verso la
+  // dashboard, che resta comunque protetta da login utente/password.
+  fetch('url.json?t=' + Date.now())
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d && d.url) {
+        window.location.replace(d.url);
+      } else {
+        document.getElementById('msg').textContent = 'Dashboard non raggiungibile al momento.';
+      }
+    })
+    .catch(function () {
+      document.getElementById('msg').textContent = 'Dashboard non raggiungibile al momento.';
+    });
+</script>
+</body>
+</html>
