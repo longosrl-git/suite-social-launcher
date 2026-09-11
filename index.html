@@ -99,7 +99,12 @@
       fallito();
     }, 7000);
 
-    fetch('url.json?t=' + Date.now(), { cache: 'no-store' })
+    // raw.githubusercontent.com invece del percorso sulla stessa pagina:
+    // la CDN di GitHub Pages tiene url.json in cache fino a 10 minuti anche
+    // con cache-busting lato client, mentre raw.githubusercontent.com si
+    // aggiorna in pratica subito — riduce di molto la finestra in cui
+    // l'app punta ancora a un tunnel già caduto
+    fetch('https://raw.githubusercontent.com/longosrl-git/suite-social-launcher/master/url.json?t=' + Date.now(), { cache: 'no-store' })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (risolto) return;
