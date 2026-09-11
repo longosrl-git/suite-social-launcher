@@ -127,20 +127,53 @@
     document.getElementById("azioni-pronte").hidden = false;
   }
 
-  // recupera l'indirizzo del tunnel attualmente attivo e apre la pagina
-  // di login della dashboard lì — le credenziali (se già salvate) vengono
-  // lette e inviate automaticamente da login.html stesso una volta
-  // arrivati lì, non da questa pagina
-  function vaiAllaDashboard(pulsante) {
+  // Il login vero e proprio (POST utente/password) avviene QUI, da questa
+  // pagina — non più sulla pagina di login della dashboard, il cui dominio
+  // cambia a ogni riavvio del tunnel e su cui il bridge nativo Capacitor
+  // non risulta affidabile (causa del "doppio login" segnalato). Il
+  // server (src/dashboard/app.py, vedi consenti_cors_app) autorizza
+  // esplicitamente le richieste da questa origine e restituisce JSON
+  // invece del solito redirect quando riceve "via_app=1".
+  function accedi(utente, password, ricorda, pulsante) {
     nascondiErrore();
     pulsante.disabled = true;
+
     fetch(URL_JSON + "?t=" + Date.now(), { cache: "no-store" })
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        if (d && d.url) {
-          window.location.replace(d.url + "/login");
+        if (!d || !d.url) throw new Error("url mancante");
+        var tunnelUrl = d.url;
+        var dati = new URLSearchParams();
+        dati.set("utente", utente);
+        dati.set("password", password);
+        dati.set("via_app", "1");
+        return fetch(tunnelUrl + "/login", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: dati,
+        }).then(function (r) {
+          return r.json().then(function (esito) {
+            return { esito: esito, tunnelUrl: tunnelUrl, status: r.status };
+          });
+        });
+      })
+      .then(function (res) {
+        if (res.esito && res.esito.ok) {
+          var vai = function () {
+            window.location.replace(res.tunnelUrl + res.esito.destinazione);
+          };
+          if (ricorda && preferenze()) {
+            preferenze()
+              .set({ key: CHIAVE, value: JSON.stringify({ u: utente, p: password }) })
+              .then(vai)
+              .catch(vai);
+          } else {
+            vai();
+          }
         } else {
-          throw new Error("url mancante");
+          pulsante.disabled = false;
+          mostraErrore((res.esito && res.esito.errore) || "Utente o password non corretti.");
         }
       })
       .catch(function () {
@@ -154,24 +187,25 @@
     var utente = document.getElementById("utente").value;
     var password = document.getElementById("password").value;
     var ricorda = document.getElementById("ricorda").checked;
-    var btn = document.getElementById("btn-accedi");
-
-    function procedi() {
-      vaiAllaDashboard(btn);
-    }
-
-    if (ricorda && preferenze()) {
-      preferenze()
-        .set({ key: CHIAVE, value: JSON.stringify({ u: utente, p: password }) })
-        .then(procedi)
-        .catch(procedi);
-    } else {
-      procedi();
-    }
+    accedi(utente, password, ricorda, document.getElementById("btn-accedi"));
   });
 
   document.getElementById("btn-entra").addEventListener("click", function () {
-    vaiAllaDashboard(document.getElementById("btn-entra"));
+    var btn = document.getElementById("btn-entra");
+    if (!preferenze()) {
+      mostraErrore("Impossibile leggere le credenziali salvate.");
+      return;
+    }
+    btn.disabled = true;
+    preferenze().get({ key: CHIAVE }).then(function (res) {
+      btn.disabled = false;
+      if (!res || !res.value) {
+        mostraStatoLogin();
+        return;
+      }
+      var cred = JSON.parse(res.value);
+      accedi(cred.u, cred.p, true, btn);
+    });
   });
 
   document.getElementById("btn-esci").addEventListener("click", function () {
