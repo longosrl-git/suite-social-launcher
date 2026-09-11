@@ -252,6 +252,12 @@
       window.Capacitor.Plugins.App.exitApp();
     });
   }
+
+  // sfondo nero anche nella barra di stato, non solo nella pagina
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
+    window.Capacitor.Plugins.StatusBar.setBackgroundColor({ color: "#000000" }).catch(function () {});
+    window.Capacitor.Plugins.StatusBar.setStyle({ style: "DARK" }).catch(function () {});
+  }
 </script>
 </body>
 </html>
