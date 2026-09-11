@@ -222,26 +222,45 @@
     }
   });
 
-  // all'avvio: se ci sono già credenziali salvate, entra subito da sola,
-  // senza bisogno di toccare "Entra" — un solo login manuale (la prima
-  // volta), poi mai più. Sicuro da fare qui, a differenza del tentativo
-  // precedente che causava un rimbalzo: ora i redirect sostituiscono la
-  // pagina invece di accumularsi nella cronologia, e il tasto indietro
-  // chiude sempre l'app invece di poter tornare su questa pagina e
-  // ripartire in un ciclo.
-  var p = preferenze();
-  if (p) {
-    p.get({ key: CHIAVE }).then(function (res) {
-      if (res && res.value) {
-        mostraStatoPronto();
-        var cred = JSON.parse(res.value);
-        accedi(cred.u, cred.p, true, document.getElementById("btn-entra"));
-      } else {
-        mostraStatoLogin();
-      }
-    });
+  // la dashboard rimanda qui con ?azione=... quando deve chiedere una cosa
+  // che solo questa pagina può fare (ha il bridge nativo di Capacitor,
+  // la dashboard sul dominio del tunnel no — limite noto di Capacitor con
+  // allowNavigation): chiudere l'app, oppure scordare le credenziali
+  // salvate dopo un logout e mostrare di nuovo il login.
+  var azione = new URLSearchParams(window.location.search).get("azione");
+
+  if (azione === "chiudi") {
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+      window.Capacitor.Plugins.App.exitApp();
+    }
+  } else if (azione === "logout") {
+    if (preferenze()) {
+      preferenze().remove({ key: CHIAVE }).then(mostraStatoLogin);
+    } else {
+      mostraStatoLogin();
+    }
   } else {
-    mostraStatoLogin();
+    // all'avvio: se ci sono già credenziali salvate, entra subito da sola,
+    // senza bisogno di toccare "Entra" — un solo login manuale (la prima
+    // volta), poi mai più. Sicuro da fare qui, a differenza del tentativo
+    // precedente che causava un rimbalzo: ora i redirect sostituiscono la
+    // pagina invece di accumularsi nella cronologia, e il tasto indietro
+    // chiude sempre l'app invece di poter tornare su questa pagina e
+    // ripartire in un ciclo.
+    var p = preferenze();
+    if (p) {
+      p.get({ key: CHIAVE }).then(function (res) {
+        if (res && res.value) {
+          mostraStatoPronto();
+          var cred = JSON.parse(res.value);
+          accedi(cred.u, cred.p, true, document.getElementById("btn-entra"));
+        } else {
+          mostraStatoLogin();
+        }
+      });
+    } else {
+      mostraStatoLogin();
+    }
   }
 
   // il tasto indietro del telefono chiude sempre l'app (stesso motivo
