@@ -47,15 +47,16 @@
 
   #msg{font-size:14px; color:var(--ink-soft); margin:0 0 6px; line-height:1.5;}
 
+  .azioni{display:none; gap:10px; justify-content:center; margin-top:14px;}
   button{
     font-family:inherit; font-size:14px; font-weight:600;
-    padding:10px 24px; margin-top:14px;
+    padding:10px 22px;
     border:1px solid var(--blueprint);
     background:var(--blueprint); color:#fff;
     border-radius:4px; cursor:pointer;
-    display:none;
   }
   button:active{filter:brightness(1.1);}
+  button.secondario{background:transparent; color:var(--ink-soft); border-color:var(--line);}
 </style>
 </head>
 <body>
@@ -65,7 +66,10 @@
   <p class="sub">Dashboard</p>
   <div class="spinner" id="spinner"></div>
   <p id="msg">Connessione alla dashboard...</p>
-  <button id="riprova" onclick="riavvia()">Riprova</button>
+  <div class="azioni" id="azioni">
+    <button onclick="riavvia()">Riconnetti</button>
+    <button class="secondario" onclick="esci()">Esci</button>
+  </div>
 </div>
 <script>
   // Non contiene alcun dato riservato: solo l'URL pubblico (temporaneo,
@@ -81,9 +85,18 @@
     window.location.reload();
   }
 
+  // chiude l'app: funziona solo dentro il contenitore nativo Capacitor
+  // (non in un browser normale, dove non esiste un modo per farlo via
+  // JavaScript — lì il pulsante semplicemente non compare, vedi sotto)
+  function esci() {
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+      window.Capacitor.Plugins.App.exitApp();
+    }
+  }
+
   function tentaConnessione() {
     tentativi += 1;
-    document.getElementById('riprova').style.display = 'none';
+    document.getElementById('azioni').style.display = 'none';
     document.getElementById('spinner').classList.remove('nascosto');
     document.getElementById('msg').textContent = 'Connessione alla dashboard...';
     document.getElementById('msg').style.color = '';
@@ -127,13 +140,20 @@
   function fallito() {
     document.getElementById('spinner').classList.add('nascosto');
     document.getElementById('msg').textContent =
-      'Dashboard non raggiungibile al momento. Verifica che il PC di Longo sia acceso, poi riprova.';
+      'Dashboard non raggiungibile al momento. Verifica che il PC di Longo sia acceso, poi riconnetti.';
     document.getElementById('msg').style.color = '#B5352D';
-    document.getElementById('riprova').style.display = 'inline-block';
-    // ritenta da solo ogni 8 secondi, senza mai fermarsi: meglio un
-    // ritentativo di troppo che restare bloccati in attesa di un tocco
-    // manuale sul pulsante
-    setTimeout(tentaConnessione, 8000);
+    // nessun ritentativo automatico: l'utente decide lui quando
+    // riconnettersi o uscire, invece di vedere la pagina ricaricarsi
+    // da sola all'infinito in background
+    document.getElementById('azioni').style.display = 'flex';
+  }
+
+  // il pulsante Esci ha senso solo dentro l'app (fuori da lì non c'è modo
+  // di "chiudere" una pagina web via script) — nascosto se qualcuno apre
+  // questo indirizzo da un browser normale
+  if (!(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App)) {
+    var btnEsci = document.querySelector('#azioni .secondario');
+    if (btnEsci) btnEsci.style.display = 'none';
   }
 
   tentaConnessione();
