@@ -222,14 +222,20 @@
     }
   });
 
-  // all'avvio: se ci sono già credenziali salvate, mostra subito i
-  // pulsanti Entra/Esci invece del form — nessuna azione automatica,
-  // solo la scelta di quale schermata mostrare
+  // all'avvio: se ci sono già credenziali salvate, entra subito da sola,
+  // senza bisogno di toccare "Entra" — un solo login manuale (la prima
+  // volta), poi mai più. Sicuro da fare qui, a differenza del tentativo
+  // precedente che causava un rimbalzo: ora i redirect sostituiscono la
+  // pagina invece di accumularsi nella cronologia, e il tasto indietro
+  // chiude sempre l'app invece di poter tornare su questa pagina e
+  // ripartire in un ciclo.
   var p = preferenze();
   if (p) {
     p.get({ key: CHIAVE }).then(function (res) {
       if (res && res.value) {
         mostraStatoPronto();
+        var cred = JSON.parse(res.value);
+        accedi(cred.u, cred.p, true, document.getElementById("btn-entra"));
       } else {
         mostraStatoLogin();
       }
