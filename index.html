@@ -4,25 +4,54 @@
 <meta charset="utf-8">
 <title>Longo Social Suite</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body{font-family:sans-serif; background:#F7F4EC; color:#1E2A38; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;}
+  .box{text-align:center; padding:24px;}
+  button{font-family:inherit; font-size:15px; font-weight:600; padding:10px 22px; margin-top:16px; border:1px solid #2B4C7E; background:#2B4C7E; color:#fff; border-radius:4px;}
+  button:active{filter:brightness(1.1);}
+</style>
 </head>
-<body style="font-family:sans-serif; background:#F7F4EC; color:#1E2A38; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
-<p id="msg">Connessione alla dashboard...</p>
+<body>
+<div class="box">
+  <p id="msg">Connessione alla dashboard...</p>
+  <button id="riprova" style="display:none;" onclick="tentaConnessione()">Riprova</button>
+</div>
 <script>
   // Non contiene alcun dato riservato: solo l'URL pubblico (temporaneo,
   // cambia ad ogni riavvio del PC) del tunnel Cloudflare verso la
   // dashboard, che resta comunque protetta da login utente/password.
-  fetch('url.json?t=' + Date.now())
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (d && d.url) {
-        window.location.replace(d.url);
-      } else {
-        document.getElementById('msg').textContent = 'Dashboard non raggiungibile al momento.';
-      }
-    })
-    .catch(function () {
-      document.getElementById('msg').textContent = 'Dashboard non raggiungibile al momento.';
-    });
+  var tentativi = 0;
+
+  function tentaConnessione() {
+    tentativi += 1;
+    document.getElementById('riprova').style.display = 'none';
+    document.getElementById('msg').textContent = 'Connessione alla dashboard...';
+
+    fetch('url.json?t=' + Date.now(), { cache: 'no-store' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.url) {
+          window.location.replace(d.url);
+        } else {
+          fallito();
+        }
+      })
+      .catch(fallito);
+  }
+
+  function fallito() {
+    document.getElementById('msg').textContent =
+      'Dashboard non raggiungibile al momento. Verifica che il PC di Longo sia acceso, poi riprova.';
+    document.getElementById('riprova').style.display = 'inline-block';
+    // ritenta da solo ogni 8 secondi, per le prime volte, così nella
+    // maggior parte dei casi (es. cache di GitHub non ancora aggiornata)
+    // l'utente non deve nemmeno accorgersi del problema
+    if (tentativi < 5) {
+      setTimeout(tentaConnessione, 8000);
+    }
+  }
+
+  tentaConnessione();
 </script>
 </body>
 </html>
