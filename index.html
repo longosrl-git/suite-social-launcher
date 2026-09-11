@@ -88,16 +88,35 @@
     document.getElementById('msg').textContent = 'Connessione alla dashboard...';
     document.getElementById('msg').style.color = '';
 
+    // un fetch senza timeout può restare "appeso" all'infinito se la rete
+    // torna a metà (es. l'app riappare in primo piano col wifi non ancora
+    // riagganciato): senza questo limite la pagina resta bloccata sullo
+    // spinner per sempre, senza mai mostrare il pulsante Riprova
+    var risolto = false;
+    var limite = setTimeout(function () {
+      if (risolto) return;
+      risolto = true;
+      fallito();
+    }, 7000);
+
     fetch('url.json?t=' + Date.now(), { cache: 'no-store' })
       .then(function (r) { return r.json(); })
       .then(function (d) {
+        if (risolto) return;
+        risolto = true;
+        clearTimeout(limite);
         if (d && d.url) {
           window.location.replace(d.url);
         } else {
           fallito();
         }
       })
-      .catch(fallito);
+      .catch(function () {
+        if (risolto) return;
+        risolto = true;
+        clearTimeout(limite);
+        fallito();
+      });
   }
 
   function fallito() {
@@ -115,6 +134,16 @@
   }
 
   tentaConnessione();
+
+  // quando l'app torna in primo piano (l'utente la riapre dopo averla
+  // messa in background) ritenta subito da sola, invece di aspettare che
+  // l'utente si accorga che è rimasta bloccata e tocchi Riprova
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') {
+      tentativi = 0;
+      tentaConnessione();
+    }
+  });
 </script>
 </body>
 </html>
