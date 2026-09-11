@@ -5,16 +5,67 @@
 <title>Longo Social Suite</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-  body{font-family:sans-serif; background:#F7F4EC; color:#1E2A38; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;}
-  .box{text-align:center; padding:24px;}
-  button{font-family:inherit; font-size:15px; font-weight:600; padding:10px 22px; margin-top:16px; border:1px solid #2B4C7E; background:#2B4C7E; color:#fff; border-radius:4px;}
+  :root{
+    --paper:#F7F4EC;
+    --paper-raised:#FBF9F3;
+    --ink:#1E2A38;
+    --ink-soft:#4B5A6B;
+    --blueprint:#2B4C7E;
+    --line:#CFC6B3;
+    --bad:#B5352D;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family:"IBM Plex Sans Condensed","Segoe UI",sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    height:100vh; margin:0; padding:20px;
+  }
+  .card{
+    width:100%; max-width:320px;
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:36px 28px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(30,42,56,.06);
+  }
+  .card img{width:64px; height:64px; display:block; margin:0 auto 18px;}
+  .card h1{font-size:17px; font-weight:700; margin:0 0 4px;}
+  .card .sub{font-size:12px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em; margin:0 0 24px;}
+
+  .spinner{
+    width:26px; height:26px; margin:0 auto 16px;
+    border:3px solid var(--line);
+    border-top-color:var(--blueprint);
+    border-radius:50%;
+    animation:girare .8s linear infinite;
+  }
+  @keyframes girare{to{transform:rotate(360deg);}}
+  .spinner.nascosto{display:none;}
+
+  #msg{font-size:14px; color:var(--ink-soft); margin:0 0 6px; line-height:1.5;}
+
+  button{
+    font-family:inherit; font-size:14px; font-weight:600;
+    padding:10px 24px; margin-top:14px;
+    border:1px solid var(--blueprint);
+    background:var(--blueprint); color:#fff;
+    border-radius:4px; cursor:pointer;
+    display:none;
+  }
   button:active{filter:brightness(1.1);}
 </style>
 </head>
 <body>
-<div class="box">
+<div class="card">
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAAI8klEQVR4nO3dfYgcZwHH8Xlm5vbtLndpYnumDaEmbb3EJE3SJgQTIX2JTVIxmFoxBGlV0lLR/GFqwVqx1aDY+kIlFiQoVKn/qA2oEISoBasEY4MNbaLWasCKWJO72/fd2Zl5ZHZzKNKKmLu97vP7frj7e/Zu5zvP88zM7phm7bwHqPLn+wUA84kAII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AIC30HJVa61nbn20Z3zf92RJmm7MBFAt5EwT9aSBqR2ma9mFDmHUOBmCtzRfyj3zxiVOnzw4Xi6mdy13TmCjqfOYT961dM9FutYxhJBgwbgbg+/6p02d/8rNfji0YSeby2GyMabXaB/bv80PfWksAA8fBAHqGS8Wx0ZGxkTkPIJ8bCsPA69NyA7PM2QDSNE2SNEmzn7nbijEmSVLbr9U2Zh2nQSGNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNAC6V9bw0TWflzUD/ORuA7/fjT/ONieNkqly1xljbhw1iljkagG+KhXy2R5o53pAxSZL87qU/G8+32WCAAeNgAN3d0JSKBW/uj8k2TQuF/LHjv6iVy2EYWkaBQeNgAN0CTLFY7B6S53YISK0tFfIvnv3jke98v1AaTZIkpYGBEnoOsp7nX3H5ImvtXM+APM9L0nRkpPTlw08uXTJ+5x2743a9HUWeS2OB9YLAN6YP/8t54GQAxvPSq5ddGQRBf+blxhjjmwOf/MLpM3+49+73LV26xDPB3K8/+saknWa7HTnZgIMBZG+TTa5aMp7P5dK0HwFYawPfD3JDh4989+kfH9+0fs3Vy64cHi55g883ptVu77hl69o1KzvttnsNOBmASeNkyfibFowMN5rNbBzow2q4u4nLFo6Vy9UfHvt5kiZuzIGCwJ+aroxfvnjDhnXt7j/Tc4ubAXQ68ZuvWLz0qvEXzrxUKgV92xeTJAnDcGxsqDcOOSAI/DAM8vncxbNrznEwAM/z4jgeHh1dt3ri1PNnhk3J85K+bdpamyTu7CvWs3GcuLSkFzgNepG5Yd2q7vVgZ988XDo3AzDGt3G0dtV1owtG4oQbdSAWgO+bdjtasXzZW699S6vV7s99QRhEzu4ZSZIUh0duu3lLpxO7d/IOs8XZAIzx0zjavm3zooWjcRzP98vBG5SzAWSzoFZ74rrlG65f1Wi2AmZBkAogu1MtTcNc7v3v2THfLwRvXC4HEARBu9Hcsf0d69dM1JstlsLQCuDiFbEFC+7au5ulMBQD8LNBoPHuXTe/bWJFo9FkEIBWAKY7CIyOjd3/0bs7cf9uiMCgcDyA3kqgUa3uvv3W3Tu3lStV9+5nxKVwP4CeJIk/dfDexYsWdjodrotBKwDf91vN1oprlj/48f11VgJQC2BmIlT54L479u7ZNTVdDpkIQSqA3gdloij63EMHVq+8tlZvBIHQ347XI7QTZJ8UizqLLhv7yqEHisVC1OlwVhRCAfQ+4Fev1TduXPf1xx5KE5ukKQticVoB9BYD9Url9p23PvbIwXq90RsZ5vtFYd7IBTDTwPS+vXsOPfixcqWafY2WTwOiFAOYOSlUvu+eDzz68MFGoxknKesBTaIB9C4O1CuV/R/a+8SXPu1ZG0URF4kF6QbQWxPXKuU797zrW4cPlYrFaq0ehtwooUU6gOx7kbrrge23bD361NfWr115YbLsZ1gSqFAPYGZNXF09cc3Rbz9+z13vrVRrrXbEUCCCAGYaqDeHhsJHDz1w5PHPLl0yfmFy2hjD1WLnEcBFQeAnSdKo1vbsvu3Y977xkQ/v7XTicqVGBm4jgH/JvuW/e2pobHTk8w/f/4Mnv/rOm7ZEUadcqfVGCS6ZucfNL8e9FEEQxHEcVcqbN63bfOP1z5547ptPHT3+zIlKtVws5PP5vDFemlqHvy9WCgG8hu60J2hkN0qYrVs2bn37jb/+zemnf3T8mV+d/NO5V+I4LuRzQ0ND3esGWQjdGChiIBHA6+pdG27U6p7nbbphzaZN6yfPXzhx8vljP3325KkX/vq3VyvVijFeGIZDYdDlz9xYNPPryvMBjLu3SxHA/5ZBo2mtNzJc2rXzpl07t02dn3r53CunX/z9c7898/K5v7x6frJcqdZqjaQ7N0p7MyQn5khBEExNV9rtyJWi/5Np1s7P92sYGN2d2/aO+rlczgtCz0vbjWalWrswOf33f0zWavV6o1lvNGv1RnenGXjGN61WtPNWZ58RRgD/j94BPjvGG5M9Hi8IsnlCdhtF76yamflxgOUpkXit56L+27EwjuNOJ84eyZrNemZ+nWF5TjD+q5kc3Djka+FCGKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRADxl/wSMpZ4o6lc/kQAAAABJRU5ErkJggg==" alt="">
+  <h1>Longo Social Suite</h1>
+  <p class="sub">Dashboard</p>
+  <div class="spinner" id="spinner"></div>
   <p id="msg">Connessione alla dashboard...</p>
-  <button id="riprova" style="display:none;" onclick="tentaConnessione()">Riprova</button>
+  <button id="riprova" onclick="tentaConnessione()">Riprova</button>
 </div>
 <script>
   // Non contiene alcun dato riservato: solo l'URL pubblico (temporaneo,
@@ -25,7 +76,9 @@
   function tentaConnessione() {
     tentativi += 1;
     document.getElementById('riprova').style.display = 'none';
+    document.getElementById('spinner').classList.remove('nascosto');
     document.getElementById('msg').textContent = 'Connessione alla dashboard...';
+    document.getElementById('msg').style.color = '';
 
     fetch('url.json?t=' + Date.now(), { cache: 'no-store' })
       .then(function (r) { return r.json(); })
@@ -40,8 +93,10 @@
   }
 
   function fallito() {
+    document.getElementById('spinner').classList.add('nascosto');
     document.getElementById('msg').textContent =
       'Dashboard non raggiungibile al momento. Verifica che il PC di Longo sia acceso, poi riprova.';
+    document.getElementById('msg').style.color = '#B5352D';
     document.getElementById('riprova').style.display = 'inline-block';
     // ritenta da solo ogni 8 secondi, per le prime volte, così nella
     // maggior parte dei casi (es. cache di GitHub non ancora aggiornata)
