@@ -65,13 +65,21 @@
   <p class="sub">Dashboard</p>
   <div class="spinner" id="spinner"></div>
   <p id="msg">Connessione alla dashboard...</p>
-  <button id="riprova" onclick="tentaConnessione()">Riprova</button>
+  <button id="riprova" onclick="riavvia()">Riprova</button>
 </div>
 <script>
   // Non contiene alcun dato riservato: solo l'URL pubblico (temporaneo,
   // cambia ad ogni riavvio del PC) del tunnel Cloudflare verso la
   // dashboard, che resta comunque protetta da login utente/password.
   var tentativi = 0;
+
+  // ricarica la pagina da zero (non solo un nuovo fetch): così riparte
+  // anche l'eventuale versione più recente della pagina stessa, non solo
+  // il tentativo di trovare il tunnel — evita che uno script vecchio in
+  // cache resti bloccato senza vie d'uscita
+  function riavvia() {
+    window.location.reload();
+  }
 
   function tentaConnessione() {
     tentativi += 1;
