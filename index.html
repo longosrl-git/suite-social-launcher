@@ -125,25 +125,33 @@
       'Dashboard non raggiungibile al momento. Verifica che il PC di Longo sia acceso, poi riprova.';
     document.getElementById('msg').style.color = '#B5352D';
     document.getElementById('riprova').style.display = 'inline-block';
-    // ritenta da solo ogni 8 secondi, per le prime volte, così nella
-    // maggior parte dei casi (es. cache di GitHub non ancora aggiornata)
-    // l'utente non deve nemmeno accorgersi del problema
-    if (tentativi < 5) {
-      setTimeout(tentaConnessione, 8000);
-    }
+    // ritenta da solo ogni 8 secondi, senza mai fermarsi: meglio un
+    // ritentativo di troppo che restare bloccati in attesa di un tocco
+    // manuale sul pulsante
+    setTimeout(tentaConnessione, 8000);
   }
 
   tentaConnessione();
 
   // quando l'app torna in primo piano (l'utente la riapre dopo averla
   // messa in background) ritenta subito da sola, invece di aspettare che
-  // l'utente si accorga che è rimasta bloccata e tocchi Riprova
+  // l'utente si accorga che è rimasta bloccata e tocchi Riprova.
+  // visibilitychange è l'evento "da browser": non sempre affidabile dentro
+  // una WebView nativa Android, quindi se l'app è quella Capacitor (rilevabile
+  // da window.Capacitor) usiamo anche l'evento nativo App.resume, molto più
+  // affidabile perché arriva direttamente dal sistema operativo
   document.addEventListener('visibilitychange', function () {
     if (document.visibilityState === 'visible') {
       tentativi = 0;
-      tentaConnessione();
+      riavvia();
     }
   });
+
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+    window.Capacitor.Plugins.App.addListener('resume', function () {
+      riavvia();
+    });
+  }
 </script>
 </body>
 </html>
