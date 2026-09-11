@@ -35,28 +35,30 @@
   .card h1{font-size:17px; font-weight:700; margin:0 0 4px;}
   .card .sub{font-size:12px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.06em; margin:0 0 24px;}
 
-  .spinner{
-    width:26px; height:26px; margin:0 auto 16px;
-    border:3px solid var(--line);
-    border-top-color:var(--blueprint);
-    border-radius:50%;
-    animation:girare .8s linear infinite;
+  label{display:block; text-align:left; font-size:12px; font-weight:600; margin:14px 0 4px;}
+  input[type=text], input[type=password]{
+    width:100%; font-family:inherit; font-size:14px;
+    padding:8px 10px; border:1px solid var(--line);
+    background:var(--paper); color:var(--ink);
   }
-  @keyframes girare{to{transform:rotate(360deg);}}
-  .spinner.nascosto{display:none;}
+  .ricorda{display:flex; align-items:center; gap:6px; margin-top:12px; font-size:13px; text-align:left;}
+  .ricorda input{width:auto;}
 
-  #msg{font-size:14px; color:var(--ink-soft); margin:0 0 6px; line-height:1.5;}
-
-  .azioni{display:none; gap:10px; justify-content:center; margin-top:14px;}
+  .azioni{display:flex; flex-direction:column; gap:10px; margin-top:18px;}
   button{
     font-family:inherit; font-size:14px; font-weight:600;
-    padding:10px 22px;
+    padding:11px 22px;
     border:1px solid var(--blueprint);
     background:var(--blueprint); color:#fff;
     border-radius:4px; cursor:pointer;
   }
   button:active{filter:brightness(1.1);}
+  button:disabled{opacity:.6; cursor:default;}
   button.secondario{background:transparent; color:var(--ink-soft); border-color:var(--line);}
+
+  #msg{font-size:13px; color:var(--bad); margin:12px 0 0; line-height:1.5; display:none;}
+  .cambia{display:block; margin-top:16px; font-size:12px; color:var(--ink-soft); background:none; border:none; text-decoration:underline; cursor:pointer; padding:0;}
+  [hidden]{display:none!important;}
 </style>
 </head>
 <body>
@@ -64,118 +66,142 @@
   <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAIAAADTED8xAAAI8klEQVR4nO3dfYgcZwHH8Xlm5vbtLndpYnumDaEmbb3EJE3SJgQTIX2JTVIxmFoxBGlV0lLR/GFqwVqx1aDY+kIlFiQoVKn/qA2oEISoBasEY4MNbaLWasCKWJO72/fd2Zl5ZHZzKNKKmLu97vP7frj7e/Zu5zvP88zM7phm7bwHqPLn+wUA84kAII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AII0AIC30HJVa61nbn20Z3zf92RJmm7MBFAt5EwT9aSBqR2ma9mFDmHUOBmCtzRfyj3zxiVOnzw4Xi6mdy13TmCjqfOYT961dM9FutYxhJBgwbgbg+/6p02d/8rNfji0YSeby2GyMabXaB/bv80PfWksAA8fBAHqGS8Wx0ZGxkTkPIJ8bCsPA69NyA7PM2QDSNE2SNEmzn7nbijEmSVLbr9U2Zh2nQSGNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNACCNAC6V9bw0TWflzUD/ORuA7/fjT/ONieNkqly1xljbhw1iljkagG+KhXy2R5o53pAxSZL87qU/G8+32WCAAeNgAN3d0JSKBW/uj8k2TQuF/LHjv6iVy2EYWkaBQeNgAN0CTLFY7B6S53YISK0tFfIvnv3jke98v1AaTZIkpYGBEnoOsp7nX3H5ImvtXM+APM9L0nRkpPTlw08uXTJ+5x2743a9HUWeS2OB9YLAN6YP/8t54GQAxvPSq5ddGQRBf+blxhjjmwOf/MLpM3+49+73LV26xDPB3K8/+saknWa7HTnZgIMBZG+TTa5aMp7P5dK0HwFYawPfD3JDh4989+kfH9+0fs3Vy64cHi55g883ptVu77hl69o1KzvttnsNOBmASeNkyfibFowMN5rNbBzow2q4u4nLFo6Vy9UfHvt5kiZuzIGCwJ+aroxfvnjDhnXt7j/Tc4ubAXQ68ZuvWLz0qvEXzrxUKgV92xeTJAnDcGxsqDcOOSAI/DAM8vncxbNrznEwAM/z4jgeHh1dt3ri1PNnhk3J85K+bdpamyTu7CvWs3GcuLSkFzgNepG5Yd2q7vVgZ988XDo3AzDGt3G0dtV1owtG4oQbdSAWgO+bdjtasXzZW699S6vV7s99QRhEzu4ZSZIUh0duu3lLpxO7d/IOs8XZAIzx0zjavm3zooWjcRzP98vBG5SzAWSzoFZ74rrlG65f1Wi2AmZBkAogu1MtTcNc7v3v2THfLwRvXC4HEARBu9Hcsf0d69dM1JstlsLQCuDiFbEFC+7au5ulMBQD8LNBoPHuXTe/bWJFo9FkEIBWAKY7CIyOjd3/0bs7cf9uiMCgcDyA3kqgUa3uvv3W3Tu3lStV9+5nxKVwP4CeJIk/dfDexYsWdjodrotBKwDf91vN1oprlj/48f11VgJQC2BmIlT54L479u7ZNTVdDpkIQSqA3gdloij63EMHVq+8tlZvBIHQ347XI7QTZJ8UizqLLhv7yqEHisVC1OlwVhRCAfQ+4Fev1TduXPf1xx5KE5ukKQticVoB9BYD9Url9p23PvbIwXq90RsZ5vtFYd7IBTDTwPS+vXsOPfixcqWafY2WTwOiFAOYOSlUvu+eDzz68MFGoxknKesBTaIB9C4O1CuV/R/a+8SXPu1ZG0URF4kF6QbQWxPXKuU797zrW4cPlYrFaq0ehtwooUU6gOx7kbrrge23bD361NfWr115YbLsZ1gSqFAPYGZNXF09cc3Rbz9+z13vrVRrrXbEUCCCAGYaqDeHhsJHDz1w5PHPLl0yfmFy2hjD1WLnEcBFQeAnSdKo1vbsvu3Y977xkQ/v7XTicqVGBm4jgH/JvuW/e2pobHTk8w/f/4Mnv/rOm7ZEUadcqfVGCS6ZucfNL8e9FEEQxHEcVcqbN63bfOP1z5547ptPHT3+zIlKtVws5PP5vDFemlqHvy9WCgG8hu60J2hkN0qYrVs2bn37jb/+zemnf3T8mV+d/NO5V+I4LuRzQ0ND3esGWQjdGChiIBHA6+pdG27U6p7nbbphzaZN6yfPXzhx8vljP3325KkX/vq3VyvVijFeGIZDYdDlz9xYNPPryvMBjLu3SxHA/5ZBo2mtNzJc2rXzpl07t02dn3r53CunX/z9c7898/K5v7x6frJcqdZqjaQ7N0p7MyQn5khBEExNV9rtyJWi/5Np1s7P92sYGN2d2/aO+rlczgtCz0vbjWalWrswOf33f0zWavV6o1lvNGv1RnenGXjGN61WtPNWZ58RRgD/j94BPjvGG5M9Hi8IsnlCdhtF76yamflxgOUpkXit56L+27EwjuNOJ84eyZrNemZ+nWF5TjD+q5kc3Djka+FCGKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRAKQRADxl/wSMpZ4o6lc/kQAAAABJRU5ErkJggg==" alt="">
   <h1>Longo Social Suite</h1>
   <p class="sub">Dashboard</p>
-  <div class="spinner" id="spinner"></div>
-  <p id="msg">Connessione alla dashboard...</p>
-  <div class="azioni" id="azioni">
-    <button onclick="riavvia()">Riconnetti</button>
-    <button class="secondario" onclick="esci()">Esci</button>
+
+  <!-- stato: nessuna credenziale salvata -->
+  <form id="form-accedi">
+    <label for="utente">Utente</label>
+    <input type="text" id="utente" autocomplete="username" required autofocus>
+    <label for="password">Password</label>
+    <input type="password" id="password" autocomplete="current-password" required>
+    <label class="ricorda"><input type="checkbox" id="ricorda" checked> Ricorda su questo telefono</label>
+    <div class="azioni">
+      <button type="submit" id="btn-accedi">Accedi</button>
+    </div>
+  </form>
+
+  <!-- stato: credenziali già salvate -->
+  <div class="azioni" id="azioni-pronte" hidden>
+    <button type="button" id="btn-entra">Entra</button>
+    <button type="button" class="secondario" id="btn-esci">Esci</button>
+    <button type="button" class="cambia" id="btn-cambia">Cambia utente</button>
   </div>
+
+  <p id="msg"></p>
 </div>
 <script>
-  // Non contiene alcun dato riservato: solo l'URL pubblico (temporaneo,
-  // cambia ad ogni riavvio del PC) del tunnel Cloudflare verso la
-  // dashboard, che resta comunque protetta da login utente/password.
-  var tentativi = 0;
+  // Non contiene alcun dato riservato lato pagina: utente/password li
+  // digita solo chi ha già l'app, e restano SOLO sul telefono (storage
+  // nativo Capacitor Preferences, non il localStorage del browser: resta
+  // valido anche quando il tunnel cambia dominio a ogni riavvio, cosa che
+  // romperebbe qualunque salvataggio legato all'origine web).
+  //
+  // Volutamente NIENTE riconnessione automatica in background (era la
+  // causa del loop segnalato: tornando indietro nell'app, la pagina si
+  // ricaricava da sola e rientrava subito nella dashboard, creando un
+  // rimbalzo continuo). Ora ogni passaggio è avviato solo da un tocco
+  // esplicito su un pulsante.
+  var CHIAVE = "ss_credenziali";
+  var URL_JSON = "https://raw.githubusercontent.com/longosrl-git/suite-social-launcher/master/url.json";
 
-  // ricarica la pagina da zero (non solo un nuovo fetch): così riparte
-  // anche l'eventuale versione più recente della pagina stessa, non solo
-  // il tentativo di trovare il tunnel — evita che uno script vecchio in
-  // cache resti bloccato senza vie d'uscita
-  function riavvia() {
-    window.location.reload();
+  function preferenze() {
+    return (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Preferences) || null;
   }
 
-  // chiude l'app: funziona solo dentro il contenitore nativo Capacitor
-  // (non in un browser normale, dove non esiste un modo per farlo via
-  // JavaScript — lì il pulsante semplicemente non compare, vedi sotto)
-  function esci() {
-    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
-      window.Capacitor.Plugins.App.exitApp();
-    }
+  function mostraErrore(testo) {
+    var el = document.getElementById("msg");
+    el.textContent = testo;
+    el.style.display = "block";
   }
 
-  function tentaConnessione() {
-    tentativi += 1;
-    document.getElementById('azioni').style.display = 'none';
-    document.getElementById('spinner').classList.remove('nascosto');
-    document.getElementById('msg').textContent = 'Connessione alla dashboard...';
-    document.getElementById('msg').style.color = '';
+  function nascondiErrore() {
+    document.getElementById("msg").style.display = "none";
+  }
 
-    // un fetch senza timeout può restare "appeso" all'infinito se la rete
-    // torna a metà (es. l'app riappare in primo piano col wifi non ancora
-    // riagganciato): senza questo limite la pagina resta bloccata sullo
-    // spinner per sempre, senza mai mostrare il pulsante Riprova
-    var risolto = false;
-    var limite = setTimeout(function () {
-      if (risolto) return;
-      risolto = true;
-      fallito();
-    }, 7000);
+  function mostraStatoLogin() {
+    document.getElementById("form-accedi").hidden = false;
+    document.getElementById("azioni-pronte").hidden = true;
+  }
 
-    // raw.githubusercontent.com invece del percorso sulla stessa pagina:
-    // la CDN di GitHub Pages tiene url.json in cache fino a 10 minuti anche
-    // con cache-busting lato client, mentre raw.githubusercontent.com si
-    // aggiorna in pratica subito — riduce di molto la finestra in cui
-    // l'app punta ancora a un tunnel già caduto
-    fetch('https://raw.githubusercontent.com/longosrl-git/suite-social-launcher/master/url.json?t=' + Date.now(), { cache: 'no-store' })
+  function mostraStatoPronto() {
+    document.getElementById("form-accedi").hidden = true;
+    document.getElementById("azioni-pronte").hidden = false;
+  }
+
+  // recupera l'indirizzo del tunnel attualmente attivo e apre la pagina
+  // di login della dashboard lì — le credenziali (se già salvate) vengono
+  // lette e inviate automaticamente da login.html stesso una volta
+  // arrivati lì, non da questa pagina
+  function vaiAllaDashboard(pulsante) {
+    nascondiErrore();
+    pulsante.disabled = true;
+    fetch(URL_JSON + "?t=" + Date.now(), { cache: "no-store" })
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        if (risolto) return;
-        risolto = true;
-        clearTimeout(limite);
         if (d && d.url) {
-          window.location.replace(d.url);
+          window.location.replace(d.url + "/login");
         } else {
-          fallito();
+          throw new Error("url mancante");
         }
       })
       .catch(function () {
-        if (risolto) return;
-        risolto = true;
-        clearTimeout(limite);
-        fallito();
+        pulsante.disabled = false;
+        mostraErrore("Dashboard non raggiungibile al momento. Verifica che il PC di Longo sia acceso, poi riprova.");
       });
   }
 
-  function fallito() {
-    document.getElementById('spinner').classList.add('nascosto');
-    document.getElementById('msg').textContent =
-      'Dashboard non raggiungibile al momento. Verifica che il PC di Longo sia acceso, poi riconnetti.';
-    document.getElementById('msg').style.color = '#B5352D';
-    // nessun ritentativo automatico: l'utente decide lui quando
-    // riconnettersi o uscire, invece di vedere la pagina ricaricarsi
-    // da sola all'infinito in background
-    document.getElementById('azioni').style.display = 'flex';
-  }
+  document.getElementById("form-accedi").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var utente = document.getElementById("utente").value;
+    var password = document.getElementById("password").value;
+    var ricorda = document.getElementById("ricorda").checked;
+    var btn = document.getElementById("btn-accedi");
 
-  // il pulsante Esci ha senso solo dentro l'app (fuori da lì non c'è modo
-  // di "chiudere" una pagina web via script) — nascosto se qualcuno apre
-  // questo indirizzo da un browser normale
-  if (!(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App)) {
-    var btnEsci = document.querySelector('#azioni .secondario');
-    if (btnEsci) btnEsci.style.display = 'none';
-  }
+    function procedi() {
+      vaiAllaDashboard(btn);
+    }
 
-  tentaConnessione();
-
-  // quando l'app torna in primo piano (l'utente la riapre dopo averla
-  // messa in background) ritenta subito da sola, invece di aspettare che
-  // l'utente si accorga che è rimasta bloccata e tocchi Riprova.
-  // visibilitychange è l'evento "da browser": non sempre affidabile dentro
-  // una WebView nativa Android, quindi se l'app è quella Capacitor (rilevabile
-  // da window.Capacitor) usiamo anche l'evento nativo App.resume, molto più
-  // affidabile perché arriva direttamente dal sistema operativo
-  document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible') {
-      tentativi = 0;
-      riavvia();
+    if (ricorda && preferenze()) {
+      preferenze()
+        .set({ key: CHIAVE, value: JSON.stringify({ u: utente, p: password }) })
+        .then(procedi)
+        .catch(procedi);
+    } else {
+      procedi();
     }
   });
 
-  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
-    window.Capacitor.Plugins.App.addListener('resume', function () {
-      riavvia();
+  document.getElementById("btn-entra").addEventListener("click", function () {
+    vaiAllaDashboard(document.getElementById("btn-entra"));
+  });
+
+  document.getElementById("btn-esci").addEventListener("click", function () {
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+      window.Capacitor.Plugins.App.exitApp();
+    }
+  });
+
+  document.getElementById("btn-cambia").addEventListener("click", function () {
+    if (preferenze()) {
+      preferenze().remove({ key: CHIAVE }).then(mostraStatoLogin);
+    } else {
+      mostraStatoLogin();
+    }
+  });
+
+  // all'avvio: se ci sono già credenziali salvate, mostra subito i
+  // pulsanti Entra/Esci invece del form — nessuna azione automatica,
+  // solo la scelta di quale schermata mostrare
+  var p = preferenze();
+  if (p) {
+    p.get({ key: CHIAVE }).then(function (res) {
+      if (res && res.value) {
+        mostraStatoPronto();
+      } else {
+        mostraStatoLogin();
+      }
     });
+  } else {
+    mostraStatoLogin();
   }
 </script>
 </body>
