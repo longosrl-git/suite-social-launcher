@@ -203,6 +203,15 @@
   } else {
     mostraStatoLogin();
   }
+
+  // il tasto indietro del telefono chiude sempre l'app (stesso motivo
+  // del listener in base.html della dashboard: più prevedibile del
+  // comportamento predefinito di Capacitor)
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+    window.Capacitor.Plugins.App.addListener('backButton', function () {
+      window.Capacitor.Plugins.App.exitApp();
+    });
+  }
 </script>
 </body>
 </html>
