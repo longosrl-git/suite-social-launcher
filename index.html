@@ -127,59 +127,53 @@
     document.getElementById("azioni-pronte").hidden = false;
   }
 
-  // Il login vero e proprio (POST utente/password) avviene QUI, da questa
-  // pagina — non più sulla pagina di login della dashboard, il cui dominio
-  // cambia a ogni riavvio del tunnel e su cui il bridge nativo Capacitor
-  // non risulta affidabile (causa del "doppio login" segnalato). Il
-  // server (src/dashboard/app.py, vedi consenti_cors_app) autorizza
-  // esplicitamente le richieste da questa origine e restituisce JSON
-  // invece del solito redirect quando riceve "via_app=1".
+  // Il login vero e proprio (POST utente/password) avviene con un invio
+  // di modulo vero e proprio (non fetch): è una normale navigazione di
+  // primo livello, verso il dominio del tunnel — identica, dal punto di
+  // vista del browser, a un login fatto da un utente desktop. Niente
+  // fetch cross-origin, niente cookie di terze parti (che Android blocca
+  // di default e che avevano reso inaffidabile il tentativo precedente,
+  // causa reale del "doppio login" segnalato), niente CORS da configurare
+  // lato server.
   function accedi(utente, password, ricorda, pulsante) {
     nascondiErrore();
     pulsante.disabled = true;
 
-    fetch(URL_JSON + "?t=" + Date.now(), { cache: "no-store" })
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        if (!d || !d.url) throw new Error("url mancante");
-        var tunnelUrl = d.url;
-        var dati = new URLSearchParams();
-        dati.set("utente", utente);
-        dati.set("password", password);
-        dati.set("via_app", "1");
-        return fetch(tunnelUrl + "/login", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: dati,
-        }).then(function (r) {
-          return r.json().then(function (esito) {
-            return { esito: esito, tunnelUrl: tunnelUrl, status: r.status };
-          });
-        });
-      })
-      .then(function (res) {
-        if (res.esito && res.esito.ok) {
-          var vai = function () {
-            window.location.replace(res.tunnelUrl + res.esito.destinazione);
-          };
-          if (ricorda && preferenze()) {
-            preferenze()
-              .set({ key: CHIAVE, value: JSON.stringify({ u: utente, p: password }) })
-              .then(vai)
-              .catch(vai);
-          } else {
-            vai();
+    var vaiConModulo = function () {
+      fetch(URL_JSON + "?t=" + Date.now(), { cache: "no-store" })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.url) throw new Error("url mancante");
+          var form = document.createElement("form");
+          form.method = "POST";
+          form.action = d.url + "/login";
+          function campo(nome, valore) {
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = nome;
+            input.value = valore;
+            form.appendChild(input);
           }
-        } else {
+          campo("utente", utente);
+          campo("password", password);
+          campo("via_app", "1");
+          document.body.appendChild(form);
+          form.submit();
+        })
+        .catch(function () {
           pulsante.disabled = false;
-          mostraErrore((res.esito && res.esito.errore) || "Utente o password non corretti.");
-        }
-      })
-      .catch(function () {
-        pulsante.disabled = false;
-        mostraErrore("Dashboard non raggiungibile al momento. Verifica che il PC di Longo sia acceso, poi riprova.");
-      });
+          mostraErrore("Dashboard non raggiungibile al momento. Verifica che il PC di Longo sia acceso, poi riprova.");
+        });
+    };
+
+    if (ricorda && preferenze()) {
+      preferenze()
+        .set({ key: CHIAVE, value: JSON.stringify({ u: utente, p: password }) })
+        .then(vaiConModulo)
+        .catch(vaiConModulo);
+    } else {
+      vaiConModulo();
+    }
   }
 
   document.getElementById("form-accedi").addEventListener("submit", function (ev) {
