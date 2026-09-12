@@ -89,6 +89,20 @@
   <p id="msg"></p>
 </div>
 <script>
+  // La WebView di Android tiene in cache questa pagina più a lungo di
+  // quanto dichiari il Cache-Control di GitHub Pages, causando più volte
+  // il caricamento di una versione vecchia (col codice di login
+  // precedente) invece di quella appena pubblicata. Rimedio definitivo:
+  // se l'URL non porta già un parametro di invalidazione, ci si
+  // ricarica da soli aggiungendolo — un URL diverso ad ogni apertura non
+  // può mai essere servito dalla cache, quindi da qui in poi ogni avvio
+  // scarica sempre la versione vera, non serve più chiedere di svuotare
+  // manualmente cache/dati dell'app.
+  if (!location.search.includes("_v=")) {
+    var separatore = location.search ? "&" : "?";
+    location.replace(location.pathname + location.search + separatore + "_v=" + Date.now());
+  }
+
   // Non contiene alcun dato riservato lato pagina: utente/password li
   // digita solo chi ha già l'app, e restano SOLO sul telefono (storage
   // nativo Capacitor Preferences, non il localStorage del browser: resta
